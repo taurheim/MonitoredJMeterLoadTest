@@ -16,8 +16,8 @@
   ],
   "version": {
     "Major": "0",
-    "Minor": "1",
-    "Patch": "0"
+    "Minor": "2",
+    "Patch": "1"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "MonitoredJMeterLoadTest $(LoadTest)",
@@ -87,6 +87,27 @@
       "label": "Number of permissible threshold violations.",
       "required": false,
       "helpMarkDown": "Number of threshold violations above which the load test outcome is considered unsuccessful. A violation occurs when a JMeter assertion fails or a sample is marked as failed."
+    },
+    {
+      "name": "ErrorPercentLimit",
+      "type": "string",
+      "label": "Maximum error percentage (0 to 100)",
+      "required": false,
+      "helpMarkDown": "Percentage of requests which can error before failing the build."
+    },
+    {
+      "name": "ResponseTimeLimit",
+      "type": "string",
+      "label": "Maximum response time",
+      "required": false,
+      "helpMarkDown": "Maximum response time of a request. This can be tweaked using percentiles by filling in the 'Response time percentile' option"
+    },
+    {
+      "name": "ResponseTimePercentile",
+      "type": "string",
+      "label": "Response time percentile (0 to 100)",
+      "required": false,
+      "helpMarkDown": "The percentile to use when calculating the response time limit"
     },
     {
       "name": "geoLocation",

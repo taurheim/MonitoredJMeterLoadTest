@@ -1,7 +1,0 @@
-1. Make changes
-2. Update major/minor version in task.json and vss-extension.json
-3. tfx extension create --manifest-globs vss-extension.json
-4. Go to https://marketplace.visualstudio.com/manage/publishers/nsavas-msft
-5. Upload the newly created vsix
-
-Can test in https://dev.azure.com/taurheim/_admin

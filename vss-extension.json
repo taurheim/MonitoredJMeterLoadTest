@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "monitored-jmeter-load-test",
   "publisher": "nsavas-msft",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "name": "Monitored JMeter Load Test",
   "description": "Adds a JMeter Load Test build task",
   "public": false,

@@ -15,6 +15,12 @@ $TestDrop,
 $LoadTest,
 [String]
 $ThresholdLimit,
+[String]
+$ErrorPercentLimit,
+[String]
+$ResponseTimeLimit,
+[String]
+$ResponseTimePercentile,
 
 [String] [Parameter(Mandatory = $true)]
 $agentCount,
@@ -92,6 +98,8 @@ WriteTaskMessages "Starting Load Test Script"
 # Load all dependent files for execution
 . $PSScriptRoot/CltTasksUtility.ps1
 . $PSScriptRoot/VssConnectionHelper.ps1
+. $PSScriptRoot/TestDropUtility.ps1
+. $PSScriptRoot/TestResultTools.ps1
 
 import-module "Microsoft.TeamFoundation.DistributedTask.Task.Internal"
 import-module "Microsoft.TeamFoundation.DistributedTask.Task.Common"
@@ -175,6 +183,43 @@ if ($drop.dropType -eq "TestServiceBlobDrop")
 	else
 	{
 		WriteTaskMessages "The load test completed successfully."
+	}
+
+	WriteTaskMessages( "Performing post-test validation")
+
+	$resultsZip = GetTestResultsZipUri $headers $run.id $CltAccountUrl
+	$csvPath = GetResultsCsvPath $headers $resultsZip
+
+	# Check for error percentage
+	if ($ErrorPercentLimit)
+	{
+		$allowedPercent = [convert]::ToDouble($ErrorPercentLimit)
+		$errorPercent = GetErrorPercentage $csvPath
+
+		if ($errorPercent -gt $allowedPercent) {
+			Write-Error ("Error count limit exceeded. {0}% of requests failed, above the allowable {1}%" -f $errorPercent, $allowedPercent)
+		} else {
+			Write-Output ("Error percent: {0}% (below {1}% trigger)" -f $errorPercent, $allowedPercent)
+		}
+	}
+
+	if ($ResponseTimeLimit)
+	{
+		if (-not ($ResponseTimePercentile))
+		{
+			$ResponseTimePercentile = 100
+		}
+
+		$ResponseTimeLimit = [convert]::ToDouble($ResponseTimeLimit)
+		$ResponseTimePercentile = [convert]::ToDouble($ResponseTimePercentile)
+		
+		$reportedResponseTime = GetPercentileResponseTime $csvPath $ResponseTimePercentile
+
+		if ($reportedResponseTime -gt $ResponseTimeLimit) {
+			Write-Error ("Response time exceeded. For the {0} percentile, reported response time was {1}" -f $ResponseTimePercentile, $reportedResponseTime)
+		} else {
+			Write-Output ("Response time under threshold. {0} percentile response time: {1}" -f $ResponseTimePercentile, $reportedResponseTime)
+		}
 	}
 
 	$run = GetTestRun $headers $run.id $CltAccountUrl
